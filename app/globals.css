@@ -1,0 +1,302 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* ===== Janna LT – mirrors DVT-Committee-Main ===== */
+@font-face {
+  font-family: 'Janna LT';
+  src: url('/fonts/englishJanna.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Janna LT';
+  src: url('/fonts/arabicJanna.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Override dark variant to use data-theme attribute (DVT pattern) */
+@custom-variant dark (:root[data-theme='dark'] &);
+
+/* ===== Theme tokens ===== */
+@theme inline {
+  /* Font */
+  --font-sans: 'Janna LT', sans-serif;
+
+  /* Shadcn token → Tailwind class mappings */
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:          var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-destructive:        var(--destructive);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+
+  /* Chart */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar:                    var(--sidebar);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-ring:               var(--sidebar-ring);
+
+  /* Etimad brand aliases (used by navbar/sidebar components) */
+  --color-brand:           var(--brand);
+  --color-brand2:          #16a34a;
+  --color-brand3:          #14532d;
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-muted:     var(--brand-muted);
+
+  /* DVT semantic aliases (map to same underlying values) */
+  --color-surface:          var(--background);
+  --color-surface-elevated: var(--card);
+  --color-card-surface:     var(--card);
+  --color-text:             var(--foreground);
+  --color-text-muted:       var(--muted-foreground);
+
+  /* DVT status colors */
+  --color-green-500: #22c55e;
+  --color-red-500:   #ef4444;
+  --color-warning:   #f59e0b;
+  --color-info:      #3b82f6;
+
+  /* Radii */
+  --radius-xs: calc(var(--radius) * 0.5);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.4);
+
+  /* DVT motion */
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:        cubic-bezier(0.32, 0, 0.67, 0);
+  --duration-fast:  120ms;
+  --duration:       220ms;
+  --duration-slow:  380ms;
+
+  /* DVT shadows */
+  --shadow-sm:     0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow-md:     0 6px 16px rgb(0 0 0 / 0.12);
+  --shadow-lg:     0 12px 32px rgb(0 0 0 / 0.18);
+  --shadow-custom: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+  /* DVT containers */
+  --container-3xl: 80rem;
+  --container-2xl: 72rem;
+  --container-xl:  64rem;
+
+  /* Layout sizing */
+  --sidebar-expanded:  14.5rem;
+  --sidebar-collapsed: 5rem;
+  --navbar-height:     3.5rem;
+}
+
+/* ===== Light mode ===== */
+:root {
+  color-scheme: light;
+
+  /* WHITE page background */
+  --background:        #ffffff;
+  --foreground:        #0f172a;
+  --card:              #ffffff;
+  --card-foreground:   #0f172a;
+  --popover:           #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Etimad green as primary */
+  --primary:            #1b6b45;
+  --primary-foreground: #ffffff;
+  --brand:              #1b6b45;
+  --brand-foreground:   #ffffff;
+  --brand-muted:        #bbf7d0;
+
+  --secondary:             #f1f5f9;
+  --secondary-foreground:  #0f172a;
+  --muted:                 #f1f5f9;
+  --muted-foreground:      #64748b;
+  --accent:                #f1f5f9;
+  --accent-foreground:     #0f172a;
+  --destructive:           #ef4444;
+  --border:                #e5e7eb;
+  --input:                 #e5e7eb;
+  --ring:                  #1b6b45;
+  --radius:                0.625rem;
+
+  --chart-1: #1b6b45;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #8b5cf6;
+  --chart-5: #ef4444;
+
+  --sidebar:                    #0f172a;
+  --sidebar-foreground:         #e5e7eb;
+  --sidebar-primary:            #1b6b45;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             #1e293b;
+  --sidebar-accent-foreground:  #e5e7eb;
+  --sidebar-border:             rgba(255, 255, 255, 0.07);
+  --sidebar-ring:               #1b6b45;
+}
+
+/* ===== Dark mode ===== */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --background:        #0f172a;
+  --foreground:        #e5e7eb;
+  --card:              #111827;
+  --card-foreground:   #e5e7eb;
+  --popover:           #111827;
+  --popover-foreground: #e5e7eb;
+  --primary:            #22c55e;
+  --primary-foreground: #0f172a;
+  --brand:              #22c55e;
+  --brand-foreground:   #0f172a;
+  --brand-muted:        #14532d;
+  --secondary:             #1e293b;
+  --secondary-foreground:  #e5e7eb;
+  --muted:                 #1e293b;
+  --muted-foreground:      #94a3b8;
+  --accent:                #1e293b;
+  --accent-foreground:     #e5e7eb;
+  --destructive:           #f87171;
+  --border:                #25304b;
+  --input:                 #25304b;
+  --ring:                  #22c55e;
+
+  --sidebar:                    #0a0f1a;
+  --sidebar-foreground:         #e5e7eb;
+  --sidebar-accent:             #1e293b;
+  --sidebar-accent-foreground:  #e5e7eb;
+  --sidebar-border:             rgba(255, 255, 255, 0.07);
+}
+
+/* ===== Base layer ===== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-synthesis: weight;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+  }
+
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: #a0aec0;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  [dir='rtl'] .rtl-flip { transform: scaleX(-1); }
+}
+
+/* ===== DVT utility classes (used by layout shell) ===== */
+@utility container-app {
+  max-width: var(--container-3xl);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2vw, 2rem);
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding-inline: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  transition:
+    transform var(--duration) var(--ease-out),
+    background-color var(--duration) var(--ease-out);
+  &:hover { transform: translateY(-1px); }
+}
+
+@utility btn-primary {
+  background: var(--color-brand);
+  color: white;
+  border-color: transparent;
+}
+
+@utility btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+}
+
+@utility input-base {
+  width: 100%;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  padding-inline: 0.875rem;
+  color: var(--color-text);
+}
+
+@utility textarea-base {
+  width: 100%;
+  min-height: 7rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  padding: 0.875rem;
+  color: var(--color-text);
+}
+
+/* KPI card hover lift */
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface-elevated) inset !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+input { caret-color: var(--color-text) !important; }
