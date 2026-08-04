@@ -6,11 +6,46 @@ import { useApp } from '@/lib/app-context'
 import { cn } from '@/lib/utils'
 
 const NOTIFICATIONS = [
-  { id: 1, text: 'Joint Committee meeting scheduled for Aug 15', type: 'meeting', time: '2h ago' },
-  { id: 2, text: 'New MoU with Republic of Korea pending signature', type: 'mou', time: '4h ago' },
-  { id: 3, text: 'Country profile update required: Germany', type: 'update', time: '1d ago' },
-  { id: 4, text: 'Document review deadline: Economic Partnership', type: 'deadline', time: '2d ago' },
-  { id: 5, text: 'Diplomatic visit: French delegation arriving Aug 20', type: 'visit', time: '2d ago' },
+  {
+    id: 1,
+    text: 'Joint Committee meeting scheduled for Aug 15',
+    textAr: 'اجتماع اللجنة المشتركة مجدول في 15 أغسطس',
+    type: 'meeting',
+    time: '2h ago',
+    timeAr: 'منذ ساعتين',
+  },
+  {
+    id: 2,
+    text: 'New MoU with Republic of Korea pending signature',
+    textAr: 'مذكرة تفاهم جديدة مع جمهورية كوريا بانتظار التوقيع',
+    type: 'mou',
+    time: '4h ago',
+    timeAr: 'منذ 4 ساعات',
+  },
+  {
+    id: 3,
+    text: 'Country profile update required: Germany',
+    textAr: 'مطلوب تحديث ملف الدولة: ألمانيا',
+    type: 'update',
+    time: '1d ago',
+    timeAr: 'منذ يوم',
+  },
+  {
+    id: 4,
+    text: 'Document review deadline: Economic Partnership',
+    textAr: 'موعد مراجعة الوثيقة: الشراكة الاقتصادية',
+    type: 'deadline',
+    time: '2d ago',
+    timeAr: 'منذ يومين',
+  },
+  {
+    id: 5,
+    text: 'Diplomatic visit: French delegation arriving Aug 20',
+    textAr: 'زيارة دبلوماسية: الوفد الفرنسي يصل في 20 أغسطس',
+    type: 'visit',
+    time: '2d ago',
+    timeAr: 'منذ يومين',
+  },
 ]
 
 const PAGE_TITLES: Record<string, { en: string; ar: string }> = {
@@ -107,8 +142,8 @@ export function TopHeader() {
             )}
           </button>
           {/* Dropdown */}
-          <div className="absolute right-0 top-full mt-1 w-80 bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] hidden group-focus-within:block z-50">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
+          <div className={cn('absolute top-full mt-1 w-80 bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] hidden group-focus-within:block z-50', isRtl ? 'left-0' : 'right-0')}>
+            <div className={cn('flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]', isRtl && 'flex-row-reverse')}>
               <span className="text-sm font-semibold text-[var(--color-text)]">
                 {isRtl ? 'الإشعارات' : 'Notifications'}
               </span>
@@ -117,11 +152,11 @@ export function TopHeader() {
               </span>
             </div>
             {NOTIFICATIONS.map((n) => (
-              <div key={n.id} className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--color-surface)] cursor-pointer border-b border-[var(--color-border)] last:border-0">
+              <div key={n.id} className={cn('flex items-start gap-3 py-3 px-4 hover:bg-[var(--color-surface)] cursor-pointer border-b border-[var(--color-border)] last:border-0', isRtl && 'flex-row-reverse text-right')}>
                 <span className={cn('w-2 h-2 rounded-full mt-1.5 shrink-0', TYPE_DOT[n.type])} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-[var(--color-text)] leading-relaxed">{n.text}</p>
-                  <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{n.time}</p>
+                  <p className="text-[12px] text-[var(--color-text)] leading-relaxed">{isRtl ? n.textAr : n.text}</p>
+                  <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{isRtl ? n.timeAr : n.time}</p>
                 </div>
               </div>
             ))}
@@ -149,7 +184,7 @@ export function TopHeader() {
               <ChevronDown className="w-3 h-3 text-[var(--color-text-muted)] hidden sm:block" />
             </button>
             {/* Dropdown */}
-            <div className="absolute right-0 top-full mt-1 w-52 bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] hidden group-focus-within:block z-50">
+            <div className={cn('absolute top-full mt-1 w-52 bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] hidden group-focus-within:block z-50', isRtl ? 'left-0' : 'right-0')}>
               <div className="px-4 py-3 border-b border-[var(--color-border)]">
                 <div className="text-[13px] font-semibold text-[var(--color-text)]">{user.name}</div>
                 <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">{user.email}</div>
