@@ -67,7 +67,7 @@ function LoginInner() {
           <img
             src="/portal-logo.png"
             alt="logo"
-            className="h-14 w-auto max-w-[220px] rounded-lg bg-black object-contain object-center"
+            className="h-14 w-auto max-w-[320px] object-contain object-center"
           />
           <div>
             <p className="text-sm text-brand2">المملكة العربية السعودية</p>
@@ -88,7 +88,7 @@ function LoginInner() {
             <img
               src="/portal-logo.png"
               alt="logo"
-              className="mb-4 h-12 w-auto max-w-[200px] rounded-lg bg-black object-contain"
+              className="mb-4 h-14 w-auto max-w-[300px] object-contain"
             />
             <p className="text-xs text-brand2">المملكة العربية السعودية</p>
             <h1 className="mt-1 text-lg font-bold text-[var(--color-brand)]">

@@ -52,7 +52,7 @@ export function TopHeader({ onToggleMobileMenu }: TopHeaderProps) {
             <img
               src="/portal-logo.png"
               alt="logo"
-              className="h-9 w-auto max-w-[160px] rounded-md bg-black object-contain object-center sm:h-10 sm:max-w-[200px]"
+              className="h-9 w-auto max-w-[220px] object-contain object-center sm:h-10 sm:max-w-[280px]"
             />
           </Link>
         </div>
