@@ -1,182 +1,211 @@
 'use client'
 
-import {
-  LayoutDashboard,
-  Globe2,
-  Building2,
-  Users2,
-  FileArchive,
-  CheckSquare,
-  Plane,
-  Vote,
-  BarChart2,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react'
-import { useApp, type ActiveTab } from '@/lib/app-context'
-import { cn } from '@/lib/utils'
+import React from 'react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { AlertTriangle, ChevronLeft, ChevronRight, LogOut, User, X, Bell } from 'lucide-react'
+import { useApp } from '@/lib/app-context'
+import { NAV_GROUPS, isNavItemActive } from '@/lib/nav-config'
+import { SIDEBAR_ALERTS } from '@/lib/mock-data'
 
-interface NavItem {
-  id: ActiveTab
-  icon: React.ComponentType<{ className?: string }>
-  labelEn: string
-  labelAr: string
+interface SidebarProps {
+  isMobileMenuOpen?: boolean
+  onCloseMobileMenu?: () => void
 }
 
-const NAV_GROUPS: { groupEn: string; groupAr: string; items: NavItem[] }[] = [
-  {
-    groupEn: 'Overview',
-    groupAr: 'نظرة عامة',
-    items: [
-      { id: 'dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelAr: 'لوحة التحكم' },
-    ],
-  },
-  {
-    groupEn: 'Diplomacy',
-    groupAr: 'الدبلوماسية',
-    items: [
-      { id: 'countries', icon: Globe2, labelEn: 'Country Profiles', labelAr: 'ملفات الدول' },
-      { id: 'organizations', icon: Building2, labelEn: 'Organizations & MoUs', labelAr: 'المنظمات والمذكرات' },
-      { id: 'visits', icon: Plane, labelEn: 'Visits & Events', labelAr: 'الزيارات والمناسبات' },
-    ],
-  },
-  {
-    groupEn: 'Governance',
-    groupAr: 'الحوكمة',
-    items: [
-      { id: 'committees', icon: Users2, labelEn: 'Committees & Meetings', labelAr: 'اللجان والاجتماعات' },
-      { id: 'decisions', icon: Vote, labelEn: 'Decisions & Voting', labelAr: 'القرارات والتصويت' },
-      { id: 'tasks', icon: CheckSquare, labelEn: 'Task Management', labelAr: 'إدارة المهام' },
-    ],
-  },
-  {
-    groupEn: 'Intelligence',
-    groupAr: 'المعلومات',
-    items: [
-      { id: 'reports', icon: BarChart2, labelEn: 'Reports & KPIs', labelAr: 'التقارير والمؤشرات' },
-      { id: 'documents', icon: FileArchive, labelEn: 'Document Center', labelAr: 'مركز الوثائق' },
-    ],
-  },
-]
+/** Matches DVT-Committee-Main Sidebar chrome (layout, active state, collapse tab, logout). */
+export function Sidebar({ isMobileMenuOpen, onCloseMobileMenu }: SidebarProps) {
+  const { user, language, sidebarCollapsed, toggleSidebar, logout, isRtl, toggleLanguage } = useApp()
+  const pathname = usePathname()
+  const router = useRouter()
+  const isCollapsed = sidebarCollapsed && !isMobileMenuOpen
 
-export function Sidebar() {
-  const { activeTab, setActiveTab, user, logout, language, sidebarCollapsed: collapsed, toggleSidebar } = useApp()
-  const isRtl = language === 'ar'
+  const closeMobile = () => onCloseMobileMenu?.()
 
-  return (
-    <aside
-      className={cn(
-        'fixed top-14 h-[calc(100vh-3.5rem)] border-x border-[var(--color-border)] bg-[var(--color-surface-elevated)] z-30 flex flex-col overflow-hidden',
-        isRtl ? 'right-0' : 'left-0'
-      )}
-      style={{
-        width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-expanded)',
-        transition: `width var(--duration) var(--ease-out)`,
-      }}
-    >
-      {/* Collapse toggle chip — outer edge */}
-      <button
-        onClick={toggleSidebar}
-        className={cn(
-          'absolute top-8 z-40 w-6 h-6 rounded-full bg-[var(--color-surface-elevated)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-brand)] hover:text-white hover:border-[var(--color-brand)] transition-all duration-150 shadow-[var(--shadow-sm)]',
-          isRtl ? '-left-3' : '-right-3'
+  const handleLogout = () => {
+    closeMobile()
+    logout()
+    router.push('/login')
+  }
+
+  const displayName = isRtl ? user?.nameAr ?? user?.name : user?.name
+  const displayRole = isRtl ? user?.roleAr ?? user?.role : user?.role
+
+  const flatItems = NAV_GROUPS.flatMap((g) => g.items)
+
+  const sidebarContent = (
+    <div className="flex h-full flex-col overflow-x-hidden">
+      {/* Fixed Header Section */}
+      <div className="shrink-0 p-4 pb-0">
+        {isMobileMenuOpen && (
+          <div className="mb-4 flex items-center justify-end">
+            <button
+              type="button"
+              onClick={onCloseMobileMenu}
+              className="rounded-lg p-1 transition-colors duration-200 hover:bg-surface-elevated"
+            >
+              <X className="h-5 w-5 cursor-pointer text-gray-600" />
+            </button>
+          </div>
         )}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {isRtl
-          ? (collapsed ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)
-          : (collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />)
-        }
-      </button>
 
-      {/* Nav */}
-      <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden" aria-label="Main navigation">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.groupEn} className="mb-1">
-            {!collapsed && (
-              <div className={cn('px-4 mb-1 mt-2', isRtl ? 'text-right' : 'text-left')}>
-                <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
-                  {isRtl ? group.groupAr : group.groupEn}
-                </span>
+        {/* User Section — Committee Main */}
+        <div className="mb-4 border-b border-border pb-4">
+          <Link
+            href="/profile"
+            onClick={closeMobile}
+            className="flex items-center gap-3 rounded-lg bg-surface px-2 py-1 no-underline"
+          >
+            <User className="text-brand" size={20} />
+            {(!isCollapsed || isMobileMenuOpen) && (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-text" lang="en">
+                  {displayName}
+                </p>
+                <p className="truncate text-xs text-text-muted">{displayRole}</p>
               </div>
             )}
-            <ul className="space-y-0.5 px-3">
-              {group.items.map((item) => {
-                const Icon = item.icon
-                const active = activeTab === item.id
-                return (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => setActiveTab(item.id)}
-                      title={collapsed ? (isRtl ? item.labelAr : item.labelEn) : undefined}
-                      className={cn(
-                        'w-full flex items-center gap-3 py-2.5 rounded-[var(--radius-md)] text-[13px] font-medium transition-all duration-150 group',
-                        collapsed ? 'justify-center px-2' : 'px-3',
-                        active
-                          ? 'bg-[var(--color-brand)] text-white shadow-[var(--shadow-sm)]'
-                          : 'text-[var(--color-text)] hover:bg-[var(--color-surface)] hover:text-[var(--color-brand)]'
-                      )}
-                      aria-current={active ? 'page' : undefined}
-                    >
-                      <Icon className={cn(
-                        'w-4 h-4 shrink-0 transition-transform duration-150',
-                        active ? 'text-white' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-brand)] group-hover:scale-110'
-                      )} />
-                      {!collapsed && (
-                        <span className={cn('truncate flex-1', isRtl ? 'text-right' : 'text-left')}>
-                          {isRtl ? item.labelAr : item.labelEn}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        ))}
-      </nav>
+          </Link>
+        </div>
 
-      {/* User section */}
-      <div className="border-t border-[var(--color-border)] p-3 shrink-0">
-        {user && !collapsed && (
-          <div className={cn(
-            'flex items-center gap-2.5 px-2 py-2 rounded-[var(--radius-md)] mb-2 hover:bg-[var(--color-surface)] transition-colors',
-            isRtl && 'flex-row-reverse'
-          )}>
-            <div className="w-8 h-8 rounded-full bg-[var(--color-brand)] flex items-center justify-center text-white text-[11px] font-bold shrink-0 ring-2 ring-[var(--color-brand)]/30">
-              {user.avatar}
-            </div>
-            <div className={cn('min-w-0 flex-1', isRtl ? 'text-right' : 'text-left')}>
-              <div className="text-[12px] font-semibold text-[var(--color-text)] truncate leading-snug">
-                {user.name.split(' ').slice(-2).join(' ')}
-              </div>
-              <div className="text-[10px] text-[var(--color-text-muted)] capitalize truncate mt-0.5">
-                {user.role.replace('_', ' ')}
-              </div>
-            </div>
-          </div>
-        )}
-        {user && collapsed && (
-          <div className="flex justify-center mb-2">
-            <div className="w-8 h-8 rounded-full bg-[var(--color-brand)] flex items-center justify-center text-white text-[11px] font-bold ring-2 ring-[var(--color-brand)]/30">
-              {user.avatar}
+        {/* Mobile-only navbar items — Committee Main */}
+        {isMobileMenuOpen && (
+          <div className="mb-4 border-b border-border pb-4">
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 font-medium text-dark transition-colors duration-200 hover:bg-gray-200 hover:text-primary-rich"
+              >
+                <span className="text-lg">🌐</span>
+                <span>{language === 'ar' ? 'English' : 'عربي'}</span>
+              </button>
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 font-medium text-dark transition-colors duration-200 hover:bg-gray-200 hover:text-primary-rich"
+              >
+                <Bell size={20} />
+                <span>{isRtl ? 'الإشعارات' : 'Notifications'}</span>
+              </button>
             </div>
           </div>
         )}
+      </div>
+
+      {/* Scrollable Routes — Committee Main spacing/active styles */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-4">
+        <ul className="space-y-2">
+          {flatItems.map((item) => {
+            const active = isNavItemActive(pathname, item)
+            const Icon = item.icon
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={closeMobile}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-text transition-colors duration-200 ${
+                    active ? 'bg-brand text-white' : ''
+                  }`}
+                  title={isCollapsed && !isMobileMenuOpen ? (isRtl ? item.labelAr : item.labelEn) : ''}
+                >
+                  <span>
+                    <Icon size={22} strokeWidth={1} />
+                  </span>
+                  <span
+                    className={`whitespace-nowrap transition-all duration-300 ${
+                      isCollapsed && !isMobileMenuOpen ? 'w-0 overflow-hidden opacity-0' : 'w-auto opacity-100'
+                    } ${isRtl ? 'text-[0.95rem]' : ''}`}
+                  >
+                    {isRtl ? item.labelAr : item.labelEn}
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+
+        {/* Alerts — kept for portal requirements, styled with Committee tokens */}
+        {(!isCollapsed || isMobileMenuOpen) && (
+          <div className="mt-4 space-y-2 border-t border-border pt-4 pb-2">
+            {SIDEBAR_ALERTS.map((a) => (
+              <div
+                key={a.id}
+                className={`rounded-lg border-s-4 p-2 text-[11px] leading-snug text-text ${
+                  a.severity === 'high' ? 'border-red-500 bg-red-500/10' : 'border-amber-500 bg-amber-500/10'
+                }`}
+              >
+                <div className="mb-0.5 flex items-center gap-1 font-semibold">
+                  <AlertTriangle className="h-3 w-3" />
+                  {a.severity === 'high' ? 'High' : 'Medium'}
+                </div>
+                {isRtl ? a.bodyAr || a.titleAr : a.bodyEn || a.titleEn}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Fixed Logout — Committee Main */}
+      <div className="shrink-0 border-t border-border px-4 pt-4 pb-4">
         <button
-          onClick={logout}
-          title={collapsed ? 'Sign Out' : undefined}
-          className={cn(
-            'w-full flex items-center gap-2 py-2 rounded-[var(--radius-md)] text-[12px] font-medium text-[var(--color-destructive)]/60 hover:text-[var(--color-destructive)] hover:bg-red-50 transition-all duration-150',
-            collapsed ? 'justify-center px-0' : 'px-3',
-            isRtl && !collapsed && 'flex-row-reverse'
-          )}
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2 font-medium text-red-600 transition-colors duration-200 hover:bg-red-50 hover:text-red-700"
+          title={isCollapsed && !isMobileMenuOpen ? (isRtl ? 'تسجيل الخروج' : 'Logout') : ''}
         >
-          <LogOut className="w-3.5 h-3.5 shrink-0" />
-          {!collapsed && <span>{isRtl ? 'تسجيل الخروج' : 'Sign Out'}</span>}
+          <LogOut size={22} strokeWidth={1} />
+          {(!isCollapsed || isMobileMenuOpen) && (
+            <span className="whitespace-nowrap">{isRtl ? 'تسجيل الخروج' : 'Logout'}</span>
+          )}
         </button>
       </div>
-    </aside>
+    </div>
+  )
+
+  return (
+    <>
+      {/* Desktop Sidebar — starts below the h-14 navbar (Committee Main) */}
+      <aside
+        className={`fixed top-14 z-30 hidden h-[calc(100vh-3.5rem)] border-x border-border bg-surface-elevated text-white transition-all duration-300 ease-in-out lg:block ${
+          isRtl ? 'right-0' : 'left-0'
+        } ${isCollapsed ? 'w-20' : 'w-58'}`}
+      >
+        {sidebarContent}
+        {/* Floating collapse toggle tab — Committee Main */}
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          className={`absolute top-1/2 z-40 flex h-10 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-text-muted shadow-sm transition-colors duration-200 hover:border-brand hover:bg-brand hover:text-white ${
+            isRtl ? '-left-3' : '-right-3'
+          }`}
+        >
+          {isCollapsed ? (
+            isRtl ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />
+          ) : isRtl ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
+        </button>
+      </aside>
+
+      {/* Mobile Menu Overlay — Committee Main */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
+          onClick={onCloseMobileMenu}
+          role="presentation"
+        >
+          <div
+            className={`fixed top-0 z-[60] h-screen w-64 transform border-x border-border bg-surface-elevated text-white shadow-lg transition-transform duration-300 ease-in-out ${
+              isRtl ? 'right-0' : 'left-0'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   )
 }

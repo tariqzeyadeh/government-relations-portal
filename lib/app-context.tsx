@@ -1,177 +1,178 @@
 'use client'
 
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { PROFILE } from '@/lib/mock-data'
 
-export type UserRole = 'executive' | 'committee_member' | 'system_admin'
 export type Language = 'en' | 'ar'
-export type ActiveTab =
-  | 'dashboard'
-  | 'countries'
-  | 'organizations'
-  | 'committees'
-  | 'documents'
-  | 'tasks'
-  | 'visits'
-  | 'decisions'
-  | 'reports'
+export type ThemeMode = 'light' | 'dark'
 
 export interface AppUser {
   name: string
-  role: UserRole
+  nameAr: string
+  role: string
+  roleAr: string
   email: string
   avatar: string
   ministry: string
+  ministryAr: string
+  mobile?: string
+  altEmail?: string
 }
 
 interface AppContextType {
   isLoggedIn: boolean
   user: AppUser | null
   darkMode: boolean
+  theme: ThemeMode
   language: Language
-  activeTab: ActiveTab
   notifications: number
   sidebarCollapsed: boolean
+  toast: string | null
   toggleSidebar: () => void
-  login: (role: UserRole) => void
+  login: () => void
   logout: () => void
   toggleDarkMode: () => void
   toggleLanguage: () => void
-  setActiveTab: (tab: ActiveTab) => void
-  t: (key: string) => string
+  setLanguage: (lang: Language) => void
+  showToast: (msg: string, _kind?: 'success' | 'error' | 'info') => void
+  clearToast: () => void
+  updateUser: (patch: Partial<AppUser>) => void
+  isRtl: boolean
 }
 
-const USERS: Record<UserRole, AppUser> = {
-  executive: {
-    name: 'H.E. Ahmed Al-Mansouri',
-    role: 'executive',
-    email: 'a.almansouri@mofa.gov',
-    avatar: 'AM',
-    ministry: 'Ministry of Foreign Affairs',
-  },
-  committee_member: {
-    name: 'Dr. Sara Al-Rashidi',
-    role: 'committee_member',
-    email: 's.alrashidi@mofa.gov',
-    avatar: 'SR',
-    ministry: 'International Cooperation Division',
-  },
-  system_admin: {
-    name: 'Eng. Khalid Ibrahim',
-    role: 'system_admin',
-    email: 'k.ibrahim@mofa.gov',
-    avatar: 'KI',
-    ministry: 'IT & Digital Transformation',
-  },
-}
-
-const TRANSLATIONS: Record<Language, Record<string, string>> = {
-  en: {
-    dashboard: 'Dashboard',
-    countries: 'Country Profiles',
-    organizations: 'Organizations & MoUs',
-    committees: 'Committees & Meetings',
-    documents: 'Document Center',
-    tasks: 'Task Management',
-    visits: 'Visits & Events',
-    decisions: 'Decisions & Voting',
-    reports: 'Reports & KPIs',
-    logout: 'Sign Out',
-    darkMode: 'Dark Mode',
-    language: 'العربية',
-    notifications: 'Notifications',
-    profile: 'My Profile',
-    settings: 'Settings',
-    welcome: 'Welcome back',
-    ministry: 'Ministry of Foreign Affairs',
-    portalTitle: 'GovIR Portal',
-    portalSubtitle: 'International Relations & Committee Management',
-  },
-  ar: {
-    dashboard: 'لوحة التحكم',
-    countries: 'ملفات الدول',
-    organizations: 'المنظمات ومذكرات التفاهم',
-    committees: 'اللجان والاجتماعات',
-    documents: 'مركز الوثائق',
-    tasks: 'إدارة المهام',
-    visits: 'الزيارات والمناسبات',
-    decisions: 'القرارات والتصويت',
-    reports: 'التقارير ومؤشرات الأداء',
-    logout: 'تسجيل الخروج',
-    darkMode: 'الوضع المظلم',
-    language: 'English',
-    notifications: 'الإشعارات',
-    profile: 'ملفي الشخصي',
-    settings: 'الإعدادات',
-    welcome: 'مرحباً بعودتك',
-    ministry: 'وزارة الشؤون الخارجية',
-    portalTitle: 'بوابة العلاقات الدولية',
-    portalSubtitle: 'إدارة العلاقات الدولية واللجان',
-  },
+const DEFAULT_USER: AppUser = {
+  name: PROFILE.nameEn,
+  nameAr: PROFILE.nameAr,
+  role: PROFILE.roleEn ?? PROFILE.titleEn,
+  roleAr: PROFILE.roleAr ?? PROFILE.titleAr,
+  email: PROFILE.email,
+  avatar: PROFILE.avatar,
+  ministry: PROFILE.ministryEn ?? PROFILE.departmentEn,
+  ministryAr: PROFILE.ministryAr ?? PROFILE.departmentAr,
+  mobile: PROFILE.mobile,
+  altEmail: PROFILE.altEmail,
 }
 
 const AppContext = createContext<AppContextType | null>(null)
 
+const AUTH_KEY = 'govir_auth'
+const THEME_KEY = 'theme'
+
+function readStoredTheme(): ThemeMode {
+  if (typeof window === 'undefined') return 'light'
+  const saved = localStorage.getItem(THEME_KEY)
+  return saved === 'dark' ? 'dark' : 'light'
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<AppUser | null>(null)
-  const [darkMode, setDarkMode] = useState(false)
-  const [language, setLanguage] = useState<Language>('en')
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard')
+  const [theme, setTheme] = useState<ThemeMode>('light')
+  const [language, setLanguageState] = useState<Language>('ar')
   const [notifications] = useState(5)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const [hydrated, setHydrated] = useState(false)
 
-  const toggleSidebar = () => setSidebarCollapsed((prev) => !prev)
+  useEffect(() => {
+    const auth = localStorage.getItem(AUTH_KEY)
+    if (auth === '1') {
+      setIsLoggedIn(true)
+      setUser(DEFAULT_USER)
+    }
 
-  const login = (role: UserRole) => {
-    setUser(USERS[role])
+    const nextTheme = readStoredTheme()
+    setTheme(nextTheme)
+    document.documentElement.setAttribute('data-theme', nextTheme)
+
+    document.documentElement.setAttribute('lang', 'ar')
+    document.documentElement.setAttribute('dir', 'rtl')
+    setHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!hydrated) return
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem(THEME_KEY, theme)
+  }, [theme, hydrated])
+
+  const toggleSidebar = () => setSidebarCollapsed((p) => !p)
+
+  const login = () => {
+    setUser(DEFAULT_USER)
     setIsLoggedIn(true)
+    localStorage.setItem(AUTH_KEY, '1')
   }
 
   const logout = () => {
     setUser(null)
     setIsLoggedIn(false)
-    setActiveTab('dashboard')
+    localStorage.removeItem(AUTH_KEY)
   }
 
   const toggleDarkMode = () => {
-    setDarkMode((prev) => {
-      const next = !prev
-      document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
-      return next
-    })
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
   }
 
-  const toggleLanguage = () => {
-    setLanguage((prev) => {
-      const next = prev === 'en' ? 'ar' : 'en'
-      document.documentElement.setAttribute('lang', next)
-      document.documentElement.setAttribute('dir', next === 'ar' ? 'rtl' : 'ltr')
-      return next
-    })
+  const applyLanguage = (next: Language) => {
+    setLanguageState(next)
+    document.documentElement.setAttribute('lang', next)
+    document.documentElement.setAttribute('dir', next === 'ar' ? 'rtl' : 'ltr')
   }
 
-  const t = (key: string): string => TRANSLATIONS[language][key] ?? key
+  const toggleLanguage = () => applyLanguage(language === 'en' ? 'ar' : 'en')
+
+  const showToast = (msg: string, _kind?: 'success' | 'error' | 'info') => {
+    setToast(msg)
+    window.setTimeout(() => setToast(null), 2800)
+  }
+
+  const clearToast = () => setToast(null)
+
+  const updateUser = (patch: Partial<AppUser>) => {
+    setUser((u) => (u ? { ...u, ...patch } : u))
+  }
+
+  if (!hydrated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface text-brand">
+        جاري التحميل…
+      </div>
+    )
+  }
 
   return (
     <AppContext.Provider
       value={{
         isLoggedIn,
         user,
-        darkMode,
+        darkMode: theme === 'dark',
+        theme,
         language,
-        activeTab,
         notifications,
         sidebarCollapsed,
+        toast,
         toggleSidebar,
         login,
         logout,
         toggleDarkMode,
         toggleLanguage,
-        setActiveTab,
-        t,
+        setLanguage: applyLanguage,
+        showToast,
+        clearToast,
+        updateUser,
+        isRtl: language === 'ar',
       }}
     >
       {children}
+      {toast && (
+        <div
+          className="fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-lg bg-brand px-4 py-2.5 text-sm text-white shadow-lg"
+          role="status"
+        >
+          {toast}
+        </div>
+      )}
     </AppContext.Provider>
   )
 }

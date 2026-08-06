@@ -1,19 +1,33 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { Providers } from '@/components/providers'
 
 export const metadata: Metadata = {
-  title: 'GovIR Portal — International Relations & Committee Management',
+  title: 'International Relations & Government Committees Portal',
   description:
-    'Government International Relations & Committee Management Portal — secure, enterprise-grade platform for managing bilateral relations, MoUs, committees, and diplomatic events.',
+    'Secure enterprise portal for international relations, MoUs, committees, and diplomatic coordination.',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+/** Prevents system dark preference from painting before React hydrates (matches Committee Main ThemeContext). */
+const themeBootScript = `
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+`
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
-        {children}
+    <html lang="ar" dir="rtl" data-theme="light" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
+      <body className="antialiased bg-surface text-text">
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

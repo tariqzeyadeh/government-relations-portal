@@ -1,18 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Search, MapPin, Users, Building2, FileText, Plane, ExternalLink, Rss, Globe2, TrendingUp } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useApp } from '@/lib/app-context'
 
 const COUNTRIES = [
   {
     id: 1, name: 'Saudi Arabia', nameAr: 'المملكة العربية السعودية', flag: '🇸🇦', region: 'GCC', capital: 'Riyadh',
-    population: '36M', gdp: '$1.07T', status: 'Strategic Partner',
+    population: '36M', gdp: '$1.07T', status: 'Strategic Partner', statusAr: 'شريك استراتيجي',
     cooperationScore: 98, sectors: ['Energy', 'Vision 2030', 'Defense', 'Finance'],
     counterparts: ['FM Prince Faisal bin Farhan', 'Amb. Saud Al-Sati', 'Min. Khalid Al-Falih'],
     agreements: 54, latestVisit: 'Jul 20, 2026', companies: 31,
@@ -25,7 +20,7 @@ const COUNTRIES = [
   },
   {
     id: 2, name: 'United Arab Emirates', nameAr: 'الإمارات العربية المتحدة', flag: '🇦🇪', region: 'GCC', capital: 'Abu Dhabi',
-    population: '10M', gdp: '$509B', status: 'Strategic Partner',
+    population: '10M', gdp: '$509B', status: 'Strategic Partner', statusAr: 'شريك استراتيجي',
     cooperationScore: 96, sectors: ['Trade', 'Technology', 'Tourism', 'Aviation'],
     counterparts: ['FM Sheikh Abdullah bin Zayed', 'Amb. Lana Nusseibeh', 'Min. Thani Al-Zeyoudi'],
     agreements: 48, latestVisit: 'Aug 1, 2026', companies: 44,
@@ -38,7 +33,7 @@ const COUNTRIES = [
   },
   {
     id: 3, name: 'Kuwait', nameAr: 'الكويت', flag: '🇰🇼', region: 'GCC', capital: 'Kuwait City',
-    population: '4.9M', gdp: '$163B', status: 'Key Partner',
+    population: '4.9M', gdp: '$163B', status: 'Key Partner', statusAr: 'شريك مهم',
     cooperationScore: 89, sectors: ['Oil', 'Finance', 'Infrastructure', 'Diplomacy'],
     counterparts: ['FM Abdullah Al-Yahya', 'Amb. Jasem Al-Budaiwi', 'Min. Bader Al-Saad'],
     agreements: 36, latestVisit: 'Jun 5, 2026', companies: 18,
@@ -51,7 +46,7 @@ const COUNTRIES = [
   },
   {
     id: 4, name: 'Qatar', nameAr: 'قطر', flag: '🇶🇦', region: 'GCC', capital: 'Doha',
-    population: '2.9M', gdp: '$214B', status: 'Strategic Partner',
+    population: '2.9M', gdp: '$214B', status: 'Strategic Partner', statusAr: 'شريك استراتيجي',
     cooperationScore: 91, sectors: ['LNG', 'Sports', 'Media', 'Aviation'],
     counterparts: ['FM Sheikh Mohammed bin Abdulrahman', 'Amb. Mishal Al-Ansari', 'Min. Ali Al-Kuwari'],
     agreements: 41, latestVisit: 'Jul 8, 2026', companies: 27,
@@ -64,7 +59,7 @@ const COUNTRIES = [
   },
   {
     id: 5, name: 'Bahrain', nameAr: 'البحرين', flag: '🇧🇭', region: 'GCC', capital: 'Manama',
-    population: '1.5M', gdp: '$43B', status: 'Key Partner',
+    population: '1.5M', gdp: '$43B', status: 'Key Partner', statusAr: 'شريك مهم',
     cooperationScore: 85, sectors: ['Finance', 'Fintech', 'Defence', 'Tourism'],
     counterparts: ['FM Dr. Abdullatif Al-Zayani', 'Amb. Khalid Al-Jalahma', 'Min. Zayed Al-Zayani'],
     agreements: 29, latestVisit: 'May 18, 2026', companies: 15,
@@ -77,7 +72,7 @@ const COUNTRIES = [
   },
   {
     id: 6, name: 'Oman', nameAr: 'عُمان', flag: '🇴🇲', region: 'GCC', capital: 'Muscat',
-    population: '4.5M', gdp: '$114B', status: 'Key Partner',
+    population: '4.5M', gdp: '$114B', status: 'Key Partner', statusAr: 'شريك مهم',
     cooperationScore: 87, sectors: ['Energy', 'Tourism', 'Fisheries', 'Logistics'],
     counterparts: ['FM Badr Al-Busaidi', 'Amb. Hunaina Al-Mughairy', 'Min. Salim Al-Aufi'],
     agreements: 33, latestVisit: 'Apr 30, 2026', companies: 21,
@@ -90,17 +85,28 @@ const COUNTRIES = [
   },
 ]
 
+const STATUS_COLORS: Record<string, string> = {
+  'Strategic Partner': 'bg-emerald-100 text-emerald-700',
+  'Major Partner':     'bg-blue-100 text-blue-700',
+  'Key Partner':       'bg-amber-100 text-amber-700',
+}
+
+type CountryType = typeof COUNTRIES[0]
+
 export function CountriesView() {
   const { language } = useApp()
   const isRtl = language === 'ar'
+  const [selected, setSelected] = useState<CountryType>(COUNTRIES[0])
+  const [search, setSearch] = useState('')
+  const [activeTab, setActiveTab] = useState('overview')
 
   const T = {
     searchPlaceholder: isRtl ? 'البحث في دول مجلس التعاون...' : 'Search GCC countries...',
     gcsBanner:         isRtl ? 'دول مجلس التعاون الخليجي — 6 دول' : 'Gulf Cooperation Council (GCC) Member States — 6 countries',
-    gccBadge:          isRtl ? 'تكامل الأمانة العامة لمجلس التعاون نشط' : 'GCC Secretariat Integration Active',
+    gccBadge:          isRtl ? 'تكامل الأمانة العامة نشط' : 'GCC Secretariat Integration Active',
     overviewTab:       isRtl ? 'نظرة عامة'    : 'Overview',
     cooperationTab:    isRtl ? 'التعاون'       : 'Cooperation',
-    liveNewsTab:       isRtl ? 'الأخبار المباشرة' : 'Live News',
+    liveNewsTab:       isRtl ? 'الأخبار'       : 'Live News',
     population:        isRtl ? 'السكان'        : 'Population',
     gdp:               isRtl ? 'الناتج المحلي' : 'GDP',
     agreements:        isRtl ? 'الاتفاقيات'    : 'Agreements',
@@ -111,11 +117,7 @@ export function CountriesView() {
     areasOfCoop:       isRtl ? 'مجالات التعاون' : 'Areas of Cooperation',
     cooperationScore:  isRtl ? 'درجة التعاون'  : 'Cooperation Score',
     liveNewsFeed:      isRtl ? 'مصدر الأخبار المباشر —' : 'Live news feed —',
-    statusLabels:      { 'Strategic Partner': isRtl ? 'شريك استراتيجي' : 'Strategic Partner', 'Major Partner': isRtl ? 'شريك رئيسي' : 'Major Partner', 'Key Partner': isRtl ? 'شريك مهم' : 'Key Partner' },
   }
-
-  const [selected, setSelected] = useState(COUNTRIES[0])
-  const [search, setSearch] = useState('')
 
   const filtered = COUNTRIES.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -123,54 +125,60 @@ export function CountriesView() {
     c.capital.toLowerCase().includes(search.toLowerCase())
   )
 
-  const statusColor: Record<string, string> = {
-    'Strategic Partner': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    'Major Partner': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    'Key Partner': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  }
+  const TABS = [
+    { key: 'overview',    label: T.overviewTab    },
+    { key: 'cooperation', label: T.cooperationTab },
+    { key: 'news',        label: T.liveNewsTab    },
+  ]
 
   return (
-    <div className="p-6 h-full flex flex-col gap-4">
+    <div className="space-y-4">
       {/* GCC Banner */}
-      <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-primary/5 border border-primary/20">
-        <div className="p-1.5 bg-primary/10 rounded-lg shrink-0">
-          <Globe2 className="w-3.5 h-3.5 text-primary" />
+      <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[var(--color-brand)]/5 border border-[var(--color-brand)]/20">
+        <div className="p-1.5 bg-[var(--color-brand)]/10 rounded-lg shrink-0">
+          <Globe2 className="w-3.5 h-3.5 text-[var(--color-brand)]" />
         </div>
-        <span className="text-[13px] font-semibold text-foreground">{T.gcsBanner}</span>
-        <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-[10px] rounded-lg font-semibold px-2.5">{T.gccBadge}</Badge>
+        <span className="text-[13px] font-semibold text-[var(--color-text)]">{T.gcsBanner}</span>
+        <span className="ml-auto inline-flex items-center bg-[var(--color-brand)]/10 text-[var(--color-brand)] text-[10px] rounded-lg font-semibold px-2.5 py-1">
+          {T.gccBadge}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 flex-1 min-h-0">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Country list */}
         <div className="flex flex-col gap-3">
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-muted)]" />
+            <input
               placeholder={T.searchPlaceholder}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 text-[13px] h-10 rounded-xl bg-muted/50 border-border/60"
+              className="w-full pl-9 pr-3 h-10 text-[13px] rounded-xl bg-gray-100/50 border border-[var(--color-border)]/60 text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-brand)]/40"
             />
           </div>
-          <div className="flex flex-col gap-1.5 overflow-y-auto">
+          <div className="flex flex-col gap-1.5">
             {filtered.map((country) => (
               <button
                 key={country.id}
-                onClick={() => setSelected(country)}
+                onClick={() => { setSelected(country); setActiveTab('overview') }}
                 className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-150 ${
                   selected.id === country.id
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border/50 hover:bg-muted/40 hover:border-primary/20 hover:-translate-y-px'
+                    ? 'border-[var(--color-brand)] bg-[var(--color-brand)]/5 shadow-sm'
+                    : 'border-[var(--color-border)]/50 hover:bg-gray-100/40 hover:border-[var(--color-brand)]/20'
                 }`}
               >
-                <span className="text-2xl leading-none shrink-0" role="img" aria-label={country.name}>{country.flag}</span>
+                <span className="text-2xl leading-none shrink-0">{country.flag}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[13px] font-bold text-foreground truncate">{country.name}</span>
-                    <span className={`text-[12px] font-extrabold shrink-0 ${selected.id === country.id ? 'text-primary' : 'text-muted-foreground'}`}>{country.cooperationScore}</span>
+                    <span className="text-[13px] font-bold text-[var(--color-text)] truncate">{country.name}</span>
+                    <span className={`text-[12px] font-extrabold shrink-0 ${selected.id === country.id ? 'text-[var(--color-brand)]' : 'text-[var(--color-text-muted)]'}`}>
+                      {country.cooperationScore}
+                    </span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{country.nameAr}</p>
-                  <Progress value={country.cooperationScore} className="mt-2 h-1.5 rounded-full" />
+                  <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">{country.nameAr}</p>
+                  <div className="mt-2 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-full rounded-full bg-[var(--color-brand)]" style={{ width: `${country.cooperationScore}%` }} />
+                  </div>
                 </div>
               </button>
             ))}
@@ -178,144 +186,147 @@ export function CountriesView() {
         </div>
 
         {/* Country detail */}
-        <div className="xl:col-span-2 overflow-y-auto">
-          <Tabs defaultValue="overview">
-            <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
-              <div className="flex items-center gap-4">
-                <span className="text-4xl" role="img" aria-label={selected.name}>{selected.flag}</span>
-                <div>
-                  <h2 className="text-xl font-bold text-foreground">{selected.name}</h2>
-                  <p className="text-sm text-muted-foreground/70 font-medium">{selected.nameAr}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">{selected.capital} · {selected.region}</span>
-                  </div>
+        <div className="xl:col-span-2">
+          <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
+            <div className="flex items-center gap-4">
+              <span className="text-4xl">{selected.flag}</span>
+              <div>
+                <h2 className="text-xl font-bold text-[var(--color-text)]">{selected.name}</h2>
+                <p className="text-sm text-[var(--color-text-muted)]/70 font-medium">{selected.nameAr}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--color-text-muted)]" />
+                  <span className="text-sm text-[var(--color-text-muted)]">{selected.capital} · {selected.region}</span>
                 </div>
               </div>
-              <Badge className={`${statusColor[selected.status] ?? ''} border-0 text-xs px-3 py-1`}>
-                {T.statusLabels[selected.status as keyof typeof T.statusLabels] ?? selected.status}
-              </Badge>
             </div>
+            <span className={`inline-flex items-center text-xs px-3 py-1 rounded-lg font-semibold ${STATUS_COLORS[selected.status] ?? 'bg-gray-100 text-gray-600'}`}>
+              {isRtl ? selected.statusAr : selected.status}
+            </span>
+          </div>
 
-            <TabsList className="mb-4 rounded-xl bg-muted/60 p-1 gap-1">
-              <TabsTrigger value="overview" className="rounded-lg text-[13px] font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">{T.overviewTab}</TabsTrigger>
-              <TabsTrigger value="cooperation" className="rounded-lg text-[13px] font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">{T.cooperationTab}</TabsTrigger>
-              <TabsTrigger value="news" className="rounded-lg text-[13px] font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">{T.liveNewsTab}</TabsTrigger>
-            </TabsList>
+          {/* Tabs */}
+          <div className="flex gap-1 mb-4 p-1 rounded-xl bg-gray-100/60">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex-1 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+                  activeTab === tab.key
+                    ? 'bg-[var(--color-surface-elevated)] shadow-sm text-[var(--color-text)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-            <TabsContent value="overview">
-              {/* Stats row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          {activeTab === 'overview' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { label: T.population,  value: selected.population,         icon: Users     },
-                  { label: T.gdp,         value: selected.gdp,                icon: TrendingUp },
-                  { label: T.agreements,  value: String(selected.agreements), icon: FileText  },
-                  { label: T.companies,   value: String(selected.companies),  icon: Building2  },
+                  { label: T.population, value: selected.population, icon: Users },
+                  { label: T.gdp,        value: selected.gdp,        icon: TrendingUp },
+                  { label: T.agreements, value: String(selected.agreements), icon: FileText },
+                  { label: T.companies,  value: String(selected.companies),  icon: Building2 },
                 ].map((stat) => {
                   const Icon = stat.icon
                   return (
-                    <Card key={stat.label} className="border-border/50 shadow-sm rounded-2xl">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                          <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{stat.label}</span>
-                        </div>
-                        <span className="text-xl font-extrabold text-foreground">{stat.value}</span>
-                      </CardContent>
-                    </Card>
+                    <div key={stat.label} className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm p-4">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Icon className="w-3.5 h-3.5 text-[var(--color-text-muted)]" />
+                        <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wide">{stat.label}</span>
+                      </div>
+                      <span className="text-xl font-extrabold text-[var(--color-text)]">{stat.value}</span>
+                    </div>
                   )
                 })}
               </div>
 
-              {/* Counterparts */}
-              <Card className="border-border/50 mb-4 shadow-sm rounded-2xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-[13px] font-bold flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" />
-                    {T.counterparts}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
+              <div className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm">
+                <div className="px-5 pt-4 pb-2">
+                  <h4 className="text-[13px] font-bold text-[var(--color-text)] flex items-center gap-2">
+                    <Users className="w-4 h-4 text-[var(--color-brand)]" />{T.counterparts}
+                  </h4>
+                </div>
+                <div className="px-5 pb-4 flex flex-wrap gap-2">
                   {selected.counterparts.map((cp) => (
-                    <Badge key={cp} variant="secondary" className="text-[11px] font-medium py-1 px-2.5 rounded-lg">
-                      {cp}
-                    </Badge>
+                    <span key={cp} className="inline-flex items-center text-[11px] font-medium py-1 px-2.5 rounded-lg bg-gray-100 text-[var(--color-text)]">{cp}</span>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Latest Visit */}
-              <Card className="border-border/50 shadow-sm rounded-2xl">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-blue-500/10">
-                    <Plane className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{T.latestVisit}</p>
-                    <p className="text-[14px] font-bold text-foreground mt-0.5">{selected.latestVisit}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+              <div className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm p-4 flex items-center gap-4">
+                <div className="p-2.5 rounded-xl bg-blue-500/10">
+                  <Plane className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">{T.latestVisit}</p>
+                  <p className="text-[14px] font-bold text-[var(--color-text)] mt-0.5">{selected.latestVisit}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
-            <TabsContent value="cooperation">
-              <Card className="border-border/50 mb-4 shadow-sm rounded-2xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-[13px] font-bold">{T.keySectors}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
+          {activeTab === 'cooperation' && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm">
+                <div className="px-5 pt-4 pb-2">
+                  <h4 className="text-[13px] font-bold text-[var(--color-text)]">{T.keySectors}</h4>
+                </div>
+                <div className="px-5 pb-4 flex flex-wrap gap-2">
                   {selected.sectors.map((s) => (
-                    <Badge key={s} className="bg-primary/10 text-primary border-primary/20 text-[11px] rounded-lg font-semibold px-2.5 py-1">{s}</Badge>
+                    <span key={s} className="inline-flex items-center bg-[var(--color-brand)]/10 text-[var(--color-brand)] text-[11px] rounded-lg font-semibold px-2.5 py-1">{s}</span>
                   ))}
-                </CardContent>
-              </Card>
-              <Card className="border-border/50 mb-4 shadow-sm rounded-2xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-[13px] font-bold">{T.areasOfCoop}</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                </div>
+              </div>
+              <div className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm">
+                <div className="px-5 pt-4 pb-2">
+                  <h4 className="text-[13px] font-bold text-[var(--color-text)]">{T.areasOfCoop}</h4>
+                </div>
+                <div className="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {selected.areas.map((area) => (
-                    <div key={area} className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors">
-                      <Globe2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <span className="text-[12px] font-medium text-foreground">{area}</span>
+                    <div key={area} className="flex items-center gap-2 p-3 rounded-xl bg-gray-100/40 hover:bg-gray-100/60 transition-colors">
+                      <Globe2 className="w-3.5 h-3.5 text-[var(--color-brand)] shrink-0" />
+                      <span className="text-[12px] font-medium text-[var(--color-text)]">{area}</span>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
-              <Card className="border-border/50 shadow-sm rounded-2xl">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[13px] font-bold text-foreground">{T.cooperationScore}</span>
-                    <span className="text-3xl font-extrabold text-primary">{selected.cooperationScore}<span className="text-base text-muted-foreground font-medium">/100</span></span>
-                  </div>
-                  <Progress value={selected.cooperationScore} className="h-2.5 rounded-full" />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="news">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-[12px] text-muted-foreground mb-1 font-medium">
-                  <Rss className="w-3.5 h-3.5 text-amber-500" />
-                  {T.liveNewsFeed} {selected.name}
                 </div>
-                {selected.news.map((item, i) => (
-                  <Card key={i} className="border-border/50 shadow-sm rounded-2xl hover:border-primary/30 hover:shadow-md transition-all duration-150 cursor-pointer group">
-                    <CardContent className="p-4 flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">{item.title}</p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="text-[11px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">{item.source}</span>
-                          <span className="text-[11px] text-muted-foreground">{item.time}</span>
-                        </div>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-0.5" />
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
-            </TabsContent>
-          </Tabs>
+              <div className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[13px] font-bold text-[var(--color-text)]">{T.cooperationScore}</span>
+                  <span className="text-3xl font-extrabold text-[var(--color-brand)]">
+                    {selected.cooperationScore}<span className="text-base text-[var(--color-text-muted)] font-medium">/100</span>
+                  </span>
+                </div>
+                <div className="h-2.5 rounded-full bg-gray-200 overflow-hidden">
+                  <div className="h-full rounded-full bg-[var(--color-brand)]" style={{ width: `${selected.cooperationScore}%` }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'news' && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-muted)] mb-1 font-medium">
+                <Rss className="w-3.5 h-3.5 text-amber-500" />
+                {T.liveNewsFeed} {selected.name}
+              </div>
+              {selected.news.map((item, i) => (
+                <div key={i} className="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-elevated)] shadow-sm hover:border-[var(--color-brand)]/30 hover:shadow-md transition-all duration-150 cursor-pointer group p-4 flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[var(--color-text)] group-hover:text-[var(--color-brand)] transition-colors leading-snug">{item.title}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-[11px] font-medium text-[var(--color-text-muted)] bg-gray-100/60 px-2 py-0.5 rounded-full">{item.source}</span>
+                      <span className="text-[11px] text-[var(--color-text-muted)]">{item.time}</span>
+                    </div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-[var(--color-text-muted)] group-hover:text-[var(--color-brand)] transition-colors shrink-0 mt-0.5" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
