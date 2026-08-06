@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { FileText, Calendar, Users, ChevronLeft, Search } from 'lucide-react'
+import { FileText, Calendar, Users, ChevronLeft, Search, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { PageHeader } from '@/components/ui-kit'
 import { MEETINGS, COMMITTEES } from '@/lib/mock-data'
@@ -92,6 +92,11 @@ export default function MinutesListPage() {
       <PageHeader
         title={isRtl ? 'المحاضر' : 'Meeting Minutes'}
         subtitle={isRtl ? 'قائمة محاضر جلسات اللجان — اضغط على محضر لعرض التفاصيل' : 'Click a minute to open details'}
+        actions={
+          <Link href="/committees/minutes/new" className="btn btn-primary no-underline text-sm">
+            <Plus size={15} /> {isRtl ? 'محضر جديد' : 'New minutes'}
+          </Link>
+        }
       />
 
       <div className="card flex flex-wrap items-center gap-3 p-4">

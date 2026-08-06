@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, X, CheckCircle2, AlertTriangle, Clock, Circle, Search, Filter } from 'lucide-react'
+import { Plus, X, CheckCircle2, AlertTriangle, Clock, Circle, Search, Filter, ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
 import { useApp } from '@/lib/app-context'
 import { TASKS } from '@/lib/ops-mock-data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -132,8 +133,8 @@ export default function TasksPage() {
           <table className="w-full text-[12px]">
             <thead>
               <tr className="border-b border-border/50 bg-muted/20">
-                {['#', 'اسم المهمة', 'المسؤول', 'الاستحقاق', 'SLA', 'النطاق', 'الحالة'].map((h) => (
-                  <th key={h} className="text-start px-4 py-3 font-bold text-muted-foreground">{h}</th>
+                {['#', 'اسم المهمة', 'المسؤول', 'الاستحقاق', 'SLA', 'النطاق', 'الحالة', ''].map((h) => (
+                  <th key={h || 'actions'} className="text-start px-4 py-3 font-bold text-muted-foreground">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -144,7 +145,12 @@ export default function TasksPage() {
                   <tr key={task.id} className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${task.status === 'تم الإنجاز' ? 'opacity-60' : ''}`}>
                     <td className="px-4 py-3 text-muted-foreground font-mono">{task.id}</td>
                     <td className="px-4 py-3 font-semibold text-foreground max-w-[200px]">
-                      <span className={task.status === 'تم الإنجاز' ? 'line-through text-muted-foreground' : ''}>{task.name}</span>
+                      <Link
+                        href={`/tasks/${task.id}`}
+                        className={`no-underline hover:text-primary ${task.status === 'تم الإنجاز' ? 'line-through text-muted-foreground' : 'text-foreground'}`}
+                      >
+                        {task.name}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{task.owner}</td>
                     <td className="px-4 py-3 text-muted-foreground font-mono">{task.due}</td>
@@ -169,6 +175,14 @@ export default function TasksPage() {
                       >
                         {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/tasks/${task.id}`}
+                        className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-primary no-underline hover:underline"
+                      >
+                        التفاصيل <ChevronLeft className="h-3.5 w-3.5" />
+                      </Link>
                     </td>
                   </tr>
                 )

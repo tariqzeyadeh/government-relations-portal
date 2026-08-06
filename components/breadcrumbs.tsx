@@ -5,20 +5,39 @@ import { usePathname } from 'next/navigation'
 import { Home } from 'lucide-react'
 import { BREADCRUMB_LABELS } from '@/lib/nav-config'
 import { getCountryById } from '@/lib/countries-world'
+import { ORGANIZATIONS } from '@/lib/mock-data'
+import { getCompanyById } from '@/lib/companies-mock'
 import { useApp } from '@/lib/app-context'
 
-function labelForSegment(seg: string, prev?: string): string {
+function labelForSegment(seg: string, prev?: string, parts?: string[]): string {
+  if (seg === 'new') {
+    if (prev === 'minutes') return 'إنشاء محضر'
+    if (prev === 'reports') return 'إنشاء تقرير'
+    if (prev === 'meetings') return 'إنشاء اجتماع'
+    if (prev === 'companies') return 'إضافة شركة جديدة'
+    return 'إنشاء'
+  }
+  if (seg === 'edit' && prev && parts) {
+    const companiesIdx = parts.indexOf('companies')
+    if (companiesIdx >= 0) return 'تعديل الشركة'
+  }
   if (BREADCRUMB_LABELS[seg]) return BREADCRUMB_LABELS[seg]
   if (prev === 'countries') {
     const c = getCountryById(seg)
     if (c) return c.nameAr
   }
   if (prev === 'organizations') {
-    if (seg === 'unido' || seg === '1') return 'منظمة اليونيدو'
+    const org = ORGANIZATIONS.find((o) => o.id === seg || String(o.numericId) === seg)
+    if (org) return org.nameAr
+  }
+  if (prev === 'companies') {
+    const company = getCompanyById(seg)
+    if (company) return company.nameAr
   }
   if (prev === 'meetings' || prev === 'minutes' || prev === 'voting') {
     if (seg === 'mining-2026' || seg === '1') return 'لجنة التعدين 2026'
   }
+  if (prev === 'tasks' && seg.startsWith('TSK-')) return 'تفاصيل المهمة'
   return decodeURIComponent(seg)
 }
 
@@ -32,16 +51,20 @@ export function Breadcrumbs() {
   const parts = pathname.split('/').filter(Boolean)
   const crumbs: { href: string; label: string }[] = []
 
-  // /portal → single "الرئيسية"
   if (parts.length === 0 || (parts.length === 1 && parts[0] === 'portal')) {
     crumbs.push({ href: '/portal', label: isRtl ? 'الرئيسية' : 'Home' })
   } else {
     crumbs.push({ href: '/portal', label: isRtl ? 'الرئيسية' : 'Home' })
     let acc = ''
     parts.forEach((seg, i) => {
-      if (seg === 'portal') return
+      if (seg === 'portal' || seg === 'ir') return
       acc += `/${seg}`
-      crumbs.push({ href: acc.startsWith('/') ? acc : `/${acc}`, label: labelForSegment(seg, parts[i - 1]) })
+      // Keep real href under /ir/... when path includes ir
+      const href = parts[0] === 'ir' ? `/ir${acc}` : acc.startsWith('/') ? acc : `/${acc}`
+      crumbs.push({
+        href,
+        label: labelForSegment(seg, parts[i - 1], parts),
+      })
     })
   }
 

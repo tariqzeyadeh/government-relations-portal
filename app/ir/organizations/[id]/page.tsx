@@ -94,8 +94,8 @@ export default function OrganizationDetailPage() {
       <div className="card p-12 text-center">
         <Building2 size={40} className="mx-auto mb-3 opacity-20" />
         <p className="text-sm">لم يتم العثور على المنظمة</p>
-        <Link href="/ir/organizations/unido" className="mt-3 inline-block text-sm text-[var(--color-brand)]">
-          ← عرض UNIDO
+        <Link href="/ir/organizations" className="mt-3 inline-block text-sm text-[var(--color-brand)]">
+          ← العودة إلى قائمة المنظمات
         </Link>
       </div>
     )
@@ -143,11 +143,11 @@ export default function OrganizationDetailPage() {
       {/* Back + header */}
       <div>
         <Link
-          href="/ir/organizations/unido"
+          href="/ir/organizations"
           className="mb-3 inline-flex items-center gap-1.5 text-sm text-[var(--color-brand)] no-underline hover:underline"
         >
           <ArrowRight size={14} className="rtl-flip" />
-          {isAr ? 'العودة' : 'Back'}
+          {isAr ? 'العودة إلى قائمة المنظمات' : 'Back to Organizations'}
         </Link>
         <PageHeader
           title={`${org.acronym} — ${isAr ? org.nameAr : org.nameEn}`}

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FileText, Download, RefreshCw, Printer, BarChart2, Globe2, Users2, FileSpreadsheet } from 'lucide-react'
+import Link from 'next/link'
+import { FileText, Download, RefreshCw, Printer, BarChart2, Globe2, Users2, FileSpreadsheet, Plus } from 'lucide-react'
 import { useApp } from '@/lib/app-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -92,9 +93,17 @@ export default function ReportsPage() {
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div>
-        <h1 className="text-xl font-extrabold text-foreground">مركز التقارير</h1>
-        <p className="text-[12px] text-muted-foreground mt-0.5">أنشئ وصدِّر تقارير مخصصة على الفور</p>
+      <div className="flex flex-wrap items-start gap-3">
+        <div>
+          <h1 className="text-xl font-extrabold text-foreground">مركز التقارير</h1>
+          <p className="text-[12px] text-muted-foreground mt-0.5">أنشئ وصدِّر تقارير مخصصة على الفور</p>
+        </div>
+        <Link
+          href="/reports/new"
+          className="ms-auto inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-[12px] font-bold text-primary-foreground no-underline shadow-sm shadow-primary/20 transition-all hover:brightness-105"
+        >
+          <Plus className="h-3.5 w-3.5" /> تقرير جديد
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

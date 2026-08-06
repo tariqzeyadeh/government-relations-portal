@@ -4,10 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Plus, Edit3, Save, X, MapPin, Globe, Users, Calendar } from 'lucide-react'
+import { ArrowRight, Plus, Edit3, Save, X, MapPin, Globe, Users, Calendar, Briefcase } from 'lucide-react'
 import { useApp } from '@/lib/app-context'
 import { getCountryById } from '@/lib/countries-world'
 import { AGREEMENTS } from '@/lib/mock-data'
+import { getCompaniesByCountry } from '@/lib/companies-mock'
 import { SectionTitle, SlaBadge, PageHeader } from '@/components/ui-kit'
 
 interface Counterpart {
@@ -91,6 +92,7 @@ export default function CountryDetailPage() {
   const counterparts = COUNTERPARTS_BY_COUNTRY[id] ?? DEFAULT_COUNTERPARTS
   const news = NEWS_BY_COUNTRY[id] ?? DEFAULT_NEWS
   const agreements = AGREEMENTS.filter((a) => a.countryId === id || (id === '1' && a.countryId === 'korea'))
+  const countryCompanies = getCompaniesByCountry(id === '1' ? 'korea' : id)
 
   const [editMode, setEditMode] = useState(false)
   const [localCounterparts, setLocalCounterparts] = useState<Counterpart[]>(counterparts)
@@ -311,6 +313,83 @@ export default function CountryDetailPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Key companies widget */}
+      <div>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <SectionTitle title={isAr ? 'الشركات الرئيسية ومؤشرات الأداء' : 'Key Companies & KPIs'} />
+          <Link
+            href={`/ir/companies?country=${id === '1' ? 'korea' : id}`}
+            className="text-xs font-semibold text-[var(--color-brand)] no-underline hover:underline"
+          >
+            {isAr ? 'عرض كل الشركات' : 'View All'}
+          </Link>
+        </div>
+        {countryCompanies.length > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-2">
+              {countryCompanies.slice(0, 4).map((co) => (
+                <Link key={co.id} href={`/ir/companies/${co.id}`} className="no-underline">
+                  <div className="card card-hover flex items-center gap-3 p-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand)]/10 text-xs font-extrabold text-[var(--color-brand)]">
+                      {co.logoInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[var(--color-text)]">
+                        {isAr ? co.nameAr : co.nameEn}
+                      </p>
+                      <p className="text-[11px] text-[var(--color-text-muted)]">{co.sectorAr}</p>
+                      <p className="text-[11px] font-semibold text-[var(--color-brand)]">{co.investmentsKpi}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="card p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Briefcase size={15} className="text-[var(--color-brand)]" />
+                <p className="text-xs font-bold text-[var(--color-text)]">
+                  {isAr ? 'ملخص الاستثمارات' : 'Investment summary'}
+                </p>
+              </div>
+              {(() => {
+                const totalCurrent = countryCompanies.length
+                const active = countryCompanies.filter((c) => c.investmentStatus === 'نشط').length
+                const negotiating = countryCompanies.filter((c) => c.investmentStatus === 'قيد التفاوض').length
+                const bars = [
+                  { label: isAr ? 'شركات' : 'Companies', value: totalCurrent, pct: 100, color: 'bg-[var(--color-brand)]' },
+                  { label: isAr ? 'استثمار نشط' : 'Active', value: active, pct: totalCurrent ? (active / totalCurrent) * 100 : 0, color: 'bg-emerald-500' },
+                  { label: isAr ? 'قيد التفاوض' : 'Negotiating', value: negotiating, pct: totalCurrent ? (negotiating / totalCurrent) * 100 : 0, color: 'bg-amber-500' },
+                ]
+                return (
+                  <div className="space-y-3">
+                    {bars.map((b) => (
+                      <div key={b.label}>
+                        <div className="mb-1 flex justify-between text-[11px]">
+                          <span className="text-[var(--color-text-muted)]">{b.label}</span>
+                          <span className="font-semibold text-[var(--color-text)]">{b.value}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-[var(--color-border)]">
+                          <div className={`h-full rounded-full ${b.color}`} style={{ width: `${Math.max(b.pct, 8)}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+        ) : (
+          <div className="card p-6 text-center text-sm text-[var(--color-text-muted)]">
+            {isAr ? 'لا توجد شركات مسجّلة لهذه الدولة بعد' : 'No companies registered for this country yet'}
+            <div className="mt-2">
+              <Link href="/ir/companies/new" className="text-xs font-semibold text-[var(--color-brand)] no-underline hover:underline">
+                {isAr ? 'إضافة شركة' : 'Add company'}
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Resources */}
