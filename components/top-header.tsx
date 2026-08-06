@@ -49,7 +49,11 @@ export function TopHeader({ onToggleMobileMenu }: TopHeaderProps) {
             </button>
           )}
           <Link href="/portal" className="flex items-center no-underline">
-            <img src="/hhc_logo_2.png" alt="logo" className="w-36 sm:w-46" />
+            <img
+              src="/portal-logo.png"
+              alt="logo"
+              className="h-9 w-auto max-w-[160px] rounded-md bg-black object-contain object-center sm:h-10 sm:max-w-[200px]"
+            />
           </Link>
         </div>
 

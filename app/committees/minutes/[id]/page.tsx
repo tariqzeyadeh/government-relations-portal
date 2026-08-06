@@ -16,6 +16,10 @@ import { useApp } from '@/lib/app-context'
 const ID_MAP: Record<string, string> = {
   '1': 'mtg-mining-2026-02',
   'mining-2026': 'mtg-mining-2026-02',
+  'mtg-mining-2026-02': 'mtg-mining-2026-02',
+  'mtg-mining-2026-01': 'mtg-mining-2026-01',
+  'mtg-jec-2026-03': 'mtg-jec-2026-03',
+  'tiap-2026-01': 'mtg-mining-2026-01',
 }
 
 const APPROVAL_STEPS = [
@@ -102,10 +106,10 @@ export default function MinutesPage() {
         actions={
           <div className="flex flex-wrap gap-2">
             <Link
-              href={`/committees/meetings/${id}/workspace`}
+              href="/committees/minutes"
               className="btn btn-ghost border border-[var(--color-border)] text-xs no-underline"
             >
-              <ArrowLeft size={13} /> مساحة العمل
+              <ArrowLeft size={13} /> قائمة المحاضر
             </Link>
             <button
               onClick={() => showToast('جارٍ الطباعة…')}

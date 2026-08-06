@@ -14,8 +14,8 @@ import { MEETINGS, COMMITTEES, DECISIONS } from '@/lib/mock-data'
 import { useApp } from '@/lib/app-context'
 
 const ID_MAP: Record<string, string> = {
-  '1': 'mtg-mining-2026-02',
-  'mining-2026': 'mtg-mining-2026-02',
+  '1': 'dec-003',
+  'mining-2026': 'dec-003',
 }
 
 type MemberVote = 'for' | 'against' | 'abstain' | 'pending'
@@ -35,14 +35,15 @@ type VoteChoice = 'for' | 'against' | 'abstain' | null
 
 export default function VotingPage() {
   const { id } = useParams<{ id: string }>()
-  const resolvedId = ID_MAP[id] || id
-  const meeting = MEETINGS.find((m) => m.id === resolvedId) ?? MEETINGS[0]
-  const committee = COMMITTEES.find((c) => c.id === meeting.committeeId)
+  const resolvedDecisionId = ID_MAP[id] || id
+  const decision =
+    DECISIONS.find((d) => d.id === resolvedDecisionId) ??
+    DECISIONS.find((d) => d.column === 'pending') ??
+    DECISIONS[0]
+  const committee = COMMITTEES.find((c) => c.id === decision.committeeId)
+  const meeting =
+    MEETINGS.find((m) => m.committeeId === decision.committeeId) ?? MEETINGS[0]
   const { showToast } = useApp()
-
-  // Use the first pending decision or first decision
-  const decision = DECISIONS.find((d) => d.column === 'pending' && d.committeeId === meeting.committeeId)
-    ?? DECISIONS[0]
 
   const [myVote, setMyVote] = useState<VoteChoice>(null)
   const [reason, setReason] = useState('')
@@ -84,21 +85,21 @@ export default function VotingPage() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="التصويت على القرارات"
-        subtitle={`${meeting.titleAr} — ${committee?.nameAr ?? ''}`}
+        title="تفاصيل القرار والتصويت"
+        subtitle={`${decision.titleAr} — ${committee?.nameAr ?? ''}`}
         actions={
           <div className="flex flex-wrap gap-2">
             <Link
-              href={`/committees/meetings/${id}/workspace`}
+              href="/committees/voting"
+              className="btn btn-ghost border border-[var(--color-border)] text-xs no-underline"
+            >
+              <ArrowLeft size={13} /> قائمة القرارات
+            </Link>
+            <Link
+              href={`/committees/meetings/${meeting.id.includes('mining') || decision.committeeId === 'mining-2026' ? 'mining-2026' : meeting.id}/workspace`}
               className="btn btn-ghost border border-[var(--color-border)] text-xs no-underline"
             >
               <ArrowLeft size={13} /> مساحة العمل
-            </Link>
-            <Link
-              href={`/committees/minutes/${id}`}
-              className="btn btn-ghost border border-[var(--color-border)] text-xs no-underline"
-            >
-              <FileText size={13} /> المحضر
             </Link>
           </div>
         }

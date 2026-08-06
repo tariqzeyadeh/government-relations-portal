@@ -9,7 +9,6 @@ import {
   ListChecks,
   Radar,
   Users,
-  PlusCircle,
   Presentation,
   BookOpen,
   FileText,
@@ -91,7 +90,6 @@ export const NAV_GROUPS: NavGroup[] = [
     labelEn: 'Committees',
     items: [
       { href: '/committees/dashboard', labelAr: 'لوحة اللجان', labelEn: 'Committees Dashboard', icon: Users },
-      { href: '/committees/meetings/new', labelAr: 'إنشاء اجتماع', labelEn: 'New Meeting', icon: PlusCircle },
       {
         href: '/committees/meetings/mining-2026/workspace',
         labelAr: 'مساحة الاجتماع',
@@ -106,20 +104,20 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: BookOpen,
       },
       {
-        href: '/committees/minutes/mining-2026',
+        href: '/committees/minutes',
         labelAr: 'المحاضر',
         labelEn: 'Minutes',
         icon: FileText,
         matchPrefixes: ['/committees/minutes'],
       },
       {
-        href: '/committees/voting/mining-2026',
-        labelAr: 'التصويت',
-        labelEn: 'Voting',
+        href: '/committees/voting',
+        labelAr: 'قرارات',
+        labelEn: 'Decisions',
         icon: Vote,
         matchPrefixes: ['/committees/voting'],
       },
-      { href: '/committees/decisions', labelAr: 'القرارات', labelEn: 'Decisions', icon: GanttChart },
+      { href: '/committees/decisions', labelAr: 'كانبان القرارات', labelEn: 'Decisions Board', icon: GanttChart },
       { href: '/committees/matrix', labelAr: 'مصفوفة المتابعة', labelEn: 'Follow-up Matrix', icon: LayoutDashboard },
     ],
   },
@@ -169,8 +167,8 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   workspace: 'تفاصيل الاجتماع',
   read: 'قراءة الوثائق',
   minutes: 'المحاضر',
-  voting: 'التصويت',
-  decisions: 'القرارات',
+  voting: 'قرارات',
+  decisions: 'كانبان القرارات',
   matrix: 'مصفوفة المتابعة',
   archive: 'الأرشيف',
   reports: 'التقارير',
@@ -194,8 +192,11 @@ export function isNavItemActive(pathname: string, item: NavItem): boolean {
   if (pathname === item.href) return true
   if (item.matchPrefixes?.some((p) => pathname === p || pathname.startsWith(p + '/') || pathname.startsWith(p))) {
     // Prefer more specific workspace/read split
-    if (item.href.includes('/workspace') && pathname.includes('/read')) return false
-    if (item.href.includes('/read') && pathname.includes('/workspace')) return false
+    if (item.href.includes('/workspace') && (pathname.includes('/read') || pathname.endsWith('/new'))) return false
+    if (item.href.includes('/read') && (pathname.includes('/workspace') || pathname.endsWith('/new'))) return false
+    // Minutes / voting list vs detail: both under prefix — keep active
+    if (item.href === '/committees/minutes' && pathname.startsWith('/committees/minutes')) return true
+    if (item.href === '/committees/voting' && pathname.startsWith('/committees/voting')) return true
     if (item.href.includes('/new') && pathname.includes('/meetings/') && !pathname.endsWith('/new')) return false
     return true
   }

@@ -63,21 +63,33 @@ function LoginInner() {
       {/* Pattern panel */}
       <div className="relative hidden min-h-[220px] flex-1 overflow-hidden bg-brand3 lg:block">
         {pattern}
-        <div className="relative z-10 flex h-full flex-col justify-end p-10 text-white">
-          <p className="text-sm text-brand2">المملكة العربية السعودية</p>
-          <h2 className="mt-2 max-w-md text-2xl font-bold leading-relaxed">
-            International Relations & Government Committees Portal
-          </h2>
-          <p className="mt-3 max-w-sm text-sm text-white/80">
-            منصة مؤسسية آمنة لإدارة العلاقات الثنائية، المذكرات، اللجان، والتنسيق الدبلوماسي.
-          </p>
+        <div className="relative z-10 flex h-full flex-col justify-between p-10 text-white">
+          <img
+            src="/portal-logo.png"
+            alt="logo"
+            className="h-14 w-auto max-w-[220px] rounded-lg bg-black object-contain object-center"
+          />
+          <div>
+            <p className="text-sm text-brand2">المملكة العربية السعودية</p>
+            <h2 className="mt-2 max-w-md text-2xl font-bold leading-relaxed">
+              International Relations & Government Committees Portal
+            </h2>
+            <p className="mt-3 max-w-sm text-sm text-white/80">
+              منصة مؤسسية آمنة لإدارة العلاقات الثنائية، المذكرات، اللجان، والتنسيق الدبلوماسي.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Form */}
       <div className="flex flex-1 items-center justify-center bg-[var(--color-bg)] p-6 sm:p-10">
         <div className="card w-full max-w-md p-6 sm:p-8">
-          <div className="mb-6 text-center lg:hidden">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <img
+              src="/portal-logo.png"
+              alt="logo"
+              className="mb-4 h-12 w-auto max-w-[200px] rounded-lg bg-black object-contain"
+            />
             <p className="text-xs text-brand2">المملكة العربية السعودية</p>
             <h1 className="mt-1 text-lg font-bold text-[var(--color-brand)]">
               International Relations & Government Committees Portal
